@@ -16,8 +16,10 @@ pythainlp.__version__
 
 class NLP_THAI_PEA:
 
-    def __init__(self):
-        pass
+    def __init__(self, inputTxt):
+        self.word_dmm = NameEntity.get_ner(inputTxt)
+        pythainlp.__version__
+        print("NLP Thai PEA is ready!!")
 
     def concadDf(self, df1, df2):
         frames = [df1, df2]
@@ -25,40 +27,41 @@ class NLP_THAI_PEA:
         return result
 
 
-    def getPronoun(self,    word_dmm ):
+    def getPronoun(self ):
         word_Pron = []
-        for i in range( len( word_dmm ) ):
-            if word_dmm[i][1] == 'PRON':
-                word_Pron.append(word_dmm[i][0])
+        
+        for i in range( len( self.word_dmm) ):
+            if 'PRON' in self.word_dmm[i][1] :
+                word_Pron.append(self.word_dmm[i][0])
 
         return word_Pron 
 
 
-    def getAction(self,    word_dmm ):
+    def getAction(self ):
         word_verb = []
-        for i in range( len( word_dmm ) ):
-            if word_dmm[i][1] == 'VERB':
-                if( word_dmm[i][2] == 'O' ):
-                    word_verb.append(word_dmm[i][0])
+        for i in range( len( self.word_dmm ) ):
+            if self.word_dmm[i][1] == 'VERB':
+                if( self.word_dmm[i][2] == 'O' ):
+                    word_verb.append(self.word_dmm[i][0])
 
         return word_verb  
 
 
-    def getTheme(self,    word_dmm ):
+    def getTheme(self ):
         word_theme = []
         check_Last_Noun = False
-        for i in range( len( word_dmm ) ):
-            if len( word_dmm[i]) > 1 and check_Last_Noun:
-                if (word_dmm[i][1] == 'NOUN'):
-                    if( word_dmm[i][2] == 'O' ):
-                        word_theme[-1] = word_theme[-1] + word_dmm[i][0]
+        for i in range( len( self.word_dmm ) ):
+            if len( self.word_dmm[i]) > 1 and check_Last_Noun:
+                if (self.word_dmm[i][1] == 'NOUN'):
+                    if(self.word_dmm[i][2] == 'O' ):
+                        word_theme[-1] = word_theme[-1] + self.word_dmm[i][0]
                         
             
                         
                         
-            if (word_dmm[i][1] == 'NOUN'): 
-                if( word_dmm[i][2] == 'O' ): 
-                    word_theme.append(word_dmm[i][0])
+            if (self.word_dmm[i][1] == 'NOUN'): 
+                if( self.word_dmm[i][2] == 'O' ): 
+                    word_theme.append(self.word_dmm[i][0])
                     check_Last_Noun = True
                     if len( word_theme) > 1 and word_theme[-1] in  word_theme[-2] :
                         del word_theme[-1]
@@ -71,53 +74,65 @@ class NLP_THAI_PEA:
         return word_theme 
 
 
-    def getLocation(self,    word_dmm ):
+    def getLocation(self ):
         #print(len(word_dmm))
         word_loc = []
         check_Last_B_location = False
-        for i in range( len( word_dmm ) ):
+        for i in range( len( self.word_dmm ) ):
 
-            if len( word_dmm[i]) > 1 and check_Last_B_location :
-                if( word_dmm[i][2] == 'I-LOCATION'):
-                    word_loc[-1] = word_loc[-1] + word_dmm[i][0]
+            if len( self.word_dmm[i]) > 1 and check_Last_B_location :
+                if( self.word_dmm[i][2] == 'I-LOCATION'):
+                    word_loc[-1] = word_loc[-1] + self.word_dmm[i][0]
                     
                 
-            if word_dmm[i][2] == 'B-LOCATION':
-                word_loc.append(word_dmm[i][0])
+            if self.word_dmm[i][2] == 'B-LOCATION':
+                word_loc.append(self.word_dmm[i][0])
                 
                 check_Last_B_location = True
             else :
                 check_Last_B_location = False
             
-            if word_dmm[i][2] == 'I-LOCATION':
+            if self.word_dmm[i][2] == 'I-LOCATION':
                 check_Last_B_location = True
 
         return word_loc
 
 
-    def getTemporal( self,   word_dmm ):
+    def getTemporal( self ):
         #print(len(word_dmm))
         word_date = []
         check_Last_B_date = False
-        for i in range( len( word_dmm ) ):
+        for i in range( len( self.word_dmm ) ):
 
-            if len( word_dmm[i]) > 1 and check_Last_B_date :
-                if( word_dmm[i][2] == 'I-DATE'):
-                    word_date[-1] = word_date[-1] + word_dmm[i][0]
+            if len( self.word_dmm[i]) > 1 and check_Last_B_date :
+                if( 'I-DATE' in self.word_dmm[i][2] ):
+                    word_date[-1] = word_date[-1] + self.word_dmm[i][0]
         
                 
-            if word_dmm[i][2] == 'B-DATE':
-                word_date.append(word_dmm[i][0])
+            if 'B-DATE' in self.word_dmm[i][2] :
+                word_date.append(self.word_dmm[i][0])
                 
                 check_Last_B_date = True
             else :
                 check_Last_B_date = False
             
-            if word_dmm[i][2] == 'I-DATE':
+            if 'I-DATE' in self.word_dmm[i][2] :
                 check_Last_B_date = True
 
         return word_date
+    def reportTable(self):
+        # pd.DataFrame.from_dict({'a': a, 'b': b}, orient='index').T
+
+        df_res = pd.DataFrame.from_dict({ 'Agent':  self.getPronoun(  ), 
+                                         'Action':  self.getAction( ) ,
+                                          'Theme':  self.getTheme( )  ,
+                                       'Location':  self.getLocation( ), 
+                                       'Temporal':  self.getTemporal(  ) }, orient='index').T
+        return df_res
+        
 
 
 if __name__ == "__main__":
+    NLP = NLP_THAI_PEA("ทำงานแม้งตลอด")
+    NLP.reportTable()
     print("Fuck")
