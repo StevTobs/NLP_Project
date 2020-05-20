@@ -22,7 +22,7 @@ class NLP_THAI_PEA:
         self.txt_path = path
         self.word_dmm = NameEntity.get_ner(message)
         print("userId: ", userId)
-        print("Recorded Data\n", self.display_recorded() )
+        print("Auto report file : \n", self.display_recorded(self.txt_path ) )
         pythainlp.__version__
         print("NLP Thai PEA is ready!!")
         print("------------------------------------------------------------------------------")
@@ -166,9 +166,9 @@ class NLP_THAI_PEA:
             data = json.load(json_file)
         return data
 
-    def display_recorded (self ) :
+    def display_recorded (self , txt_path) :
         
-        with open(self.txt_path ) as json_file:
+        with open(txt_path ) as json_file:
             data = json.load(json_file)
 
         return data
